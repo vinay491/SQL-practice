@@ -1,0 +1,114 @@
+# SQL-practice
+
+Pivot the Occupation column in OCCUPATIONS so that each Name is sorted alphabetically and displayed underneath its corresponding Occupation. The output column headers should be Doctor, Professor, Singer, and Actor, respectively.
+
+Note: Print NULL when there are no more names corresponding to an occupation.
+
+Input Format
+
+The OCCUPATIONS table is described as follows:
+
+
+
+Occupation will only contain one of the following values: Doctor, Professor, Singer or Actor.
+
+Sample  Input
+Name          Occupation
+Smaantha      Doctor
+Julia         Actor
+maria         Actor
+Meera         Singer
+Ashley        Professor
+Ketty         Professor
+Christeen     Profesor
+Jane          Actor
+Jenny         Dcotor
+Priya         Singer
+
+
+Sample Output
+
+Jenny    Ashley     Meera  Jane
+Samantha Christeen  Priya  Julia
+NULL     Ketty      NULL   Maria
+Explanation
+
+The first column is an alphabetically ordered list of Doctor names. 
+The second column is an alphabetically ordered list of Professor names. 
+The third column is an alphabetically ordered list of Singer names. 
+The fourth column is an alphabetically ordered list of Actor names. 
+The empty cell data for columns with less than the maximum number of names per occupation (in this case, the Professor and Actor columns) are filled with NULL values.
+
+
+
+Solution
+
+WITH DATA AS
+(
+select *,
+ROW_NUMBER()OVER(order by Doctor) AS DOC_SEQ,
+ROW_NUMBER()OVER(order by Professor) AS PROF_SEQ,
+ROW_NUMBER()OVER(order by Singer) AS SIN_SEQ,
+ROW_NUMBER()OVER(order by Actor) AS ACT_SEQ
+
+from
+(
+SELECT 
+CASE WHEN OCCUPATION = 'Doctor' THEN NAME ELSE 'ZZ' END AS Doctor,
+CASE WHEN OCCUPATION = 'Professor' THEN NAME ELSE 'ZZ' END AS Professor,
+CASE WHEN OCCUPATION = 'Singer' THEN NAME ELSE 'ZZ' END AS Singer,
+CASE WHEN OCCUPATION = 'Actor' THEN NAME ELSE 'ZZ' END AS Actor
+FROM OCCUPATIONS 
+)A
+
+),
+
+DOC AS
+(
+SELECT Doctor, doc_seq
+from data
+),
+
+prof AS
+(
+SELECT Professor, prof_seq
+from data
+),
+
+sing AS
+(
+SELECT singer, sin_seq
+from data
+),
+
+act AS
+(
+SELECT actor, act_seq
+from data
+)
+
+SELECT DOCTOR, PROFESSOR, SINGER, ACTOR FROM 
+(
+select case when doctor = 'ZZ' THEN NULL ELSE DOCTOR END AS DOCTOR,
+case when professor = 'ZZ' THEN NULL ELSE professor END AS professor,
+case when singer = 'ZZ' THEN NULL ELSE singer END AS singer,
+case when actor = 'ZZ' THEN NULL ELSE actor END AS actor,
+    DOC_SEQ
+
+from doc a 
+left join prof b on (a.doc_seq = b.prof_seq)
+left join sing c on (a.doc_seq = c.sin_seq)
+left join act d on (a.doc_seq = d.act_seq)
+
+)A
+WHERE 
+(
+DOCTOR IS NOT NULL
+OR
+PROFESSOR IS NOT NULL
+OR
+SINGER IS NOT NULL
+OR
+ACTOR IS NOT NULL
+)
+ORDER BY DOC_SEQ
