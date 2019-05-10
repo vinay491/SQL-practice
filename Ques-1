@@ -14,7 +14,7 @@ Occupation will only contain one of the following values: Doctor, Professor, Sin
 
 Sample  Input
 Name          Occupation
-Smaantha      Doctor
+Samantha      Doctor
 Julia         Actor
 maria         Actor
 Meera         Singer
